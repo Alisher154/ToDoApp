@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import uz.texnopos.mytodoapp.data.models.ToDoTask
 import uz.texnopos.mytodoapp.data.repository.ToDoRepository
+import uz.texnopos.mytodoapp.util.RequestState
 import uz.texnopos.mytodoapp.util.SearchAppBarState
 import javax.inject.Inject
 
@@ -24,10 +25,28 @@ class SharedViewModel @Inject constructor(
     val searchTextState: MutableState<String> = mutableStateOf("")
 
 
-    private val _allTasks = MutableStateFlow<List<ToDoTask>>(emptyList())
+    private val _allTasks = MutableStateFlow<RequestState<List<ToDoTask>>>(RequestState.Idle)
     val allTasks get() = _allTasks
 
-    fun getAllTasks() = viewModelScope.launch {
-        repo.getAllTasks.collect { _allTasks.value = it }
+    fun getAllTasks() {
+        _allTasks.value = RequestState.Loading
+        try {
+            viewModelScope.launch {
+                repo.getAllTasks.collect { _allTasks.value = RequestState.Success(it) }
+            }
+        } catch (e: Exception) {
+            _allTasks.value = RequestState.Error(e)
+        }
+    }
+
+    private var _selectedTask: MutableStateFlow<ToDoTask?> = MutableStateFlow(null)
+    val selectedTask get() = _selectedTask
+
+    fun getSelectedTask(taskId: Int) {
+        viewModelScope.launch {
+            repo.getSelectedTask(taskId = taskId).collect { task ->
+                _selectedTask.value = task
+            }
+        }
     }
 }

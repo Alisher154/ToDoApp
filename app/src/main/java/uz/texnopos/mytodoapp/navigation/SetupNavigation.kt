@@ -1,5 +1,6 @@
 package uz.texnopos.mytodoapp.navigation
 
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.navigation.NavHostController
@@ -9,6 +10,7 @@ import uz.texnopos.mytodoapp.navigation.destinations.taskComposable
 import uz.texnopos.mytodoapp.ui.viewmodels.SharedViewModel
 import uz.texnopos.mytodoapp.util.Constants.LIST_SCREEN
 
+@ExperimentalMaterialApi
 @Composable
 fun SetupNavigation(
     navController: NavHostController,
@@ -26,6 +28,7 @@ fun SetupNavigation(
             sharedViewModel = sharedViewModel
         )
         taskComposable(
+            sharedViewModel = sharedViewModel,
             navigateToListScreen = screen.list
         )
     }
